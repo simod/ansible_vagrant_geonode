@@ -1,0 +1,4 @@
+- name: deploy geonode
+  hosts: geonode
+  roles:
+    - geonode

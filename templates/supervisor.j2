@@ -1,0 +1,27 @@
+[unix_http_server]
+file=/home/vagrant/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///home/vagrant/supervisor.sock
+
+[group:geonode]
+programs=geonode
+
+[program:geonode]
+command={{ virtualenv_path }}/bin/gunicorn geonode.wsgi -p gunicorn.pid --error-logfile /home/vagrant/gunicorn_error.log
+directory={{ geonode_deploy_dir }}
+user={{ gunicorn_user }}
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+[supervisord]
+logfile=/tmp/supervisord.log ; (main log file;default $CWD/supervisord.log)
+logfile_maxbytes=50MB        ; (max main logfile bytes b4 rotation;default 50MB)
+logfile_backups=10           ; (num of main logfile rotation backups;default 10) 
+pidfile=/tmp/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+minfds=1024                  ; (min. avail startup file descriptors;default 1024)
+minprocs=200

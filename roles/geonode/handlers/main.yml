@@ -1,0 +1,29 @@
+- name: restart supervisor
+  supervisorctl: name=geonode state=restarted config={{ supervisor_conf_file }}
+  sudo: True
+
+- name: restart nginx
+  sudo: True
+  service: name=nginx state=restarted
+
+- name: restart postgresql
+  sudo: True
+  service: name=postgresql state=restarted
+
+- name: add postgis
+  sudo: True
+  sudo_user: postgres
+  command: "psql -d geonode -c 'create extension postgis;'"
+  notify:
+    - publish postgis
+
+- name: publish postgis
+  sudo: True
+  sudo_user: postgres
+  postgresql_privs: >
+     database=geonode 
+     state=present 
+     type=table
+     objs=geometry_columns,spatial_ref_sys
+     privs=ALL
+     roles=PUBLIC

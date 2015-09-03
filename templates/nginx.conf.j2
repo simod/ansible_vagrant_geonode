@@ -1,0 +1,25 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on; 
+
+    root {{ geonode_deploy_dir }};
+    index index.html index.htm;
+
+    server_name localhost;
+    
+    location /static/ {
+        alias {{ geonode_static_folder }};
+    }
+    
+    location /uploaded/ {
+        alias {{ geonode_media_folder }};
+    }
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_redirect http://localhost:8000 http://localhost:8001;
+    }
+}

@@ -1,0 +1,19 @@
+virtualenv_path: /home/vagrant/geonode
+
+
+geonode_repository: https://github.com/GeoNode/geonode
+geonode_deploy_dir: /home/vagrant/geonode/geonode
+geonode_static_folder: /var/www/geonode/
+geonode_media_folder: /var/www/geonode/uploaded/
+geonode_db_name: geonode
+geonode_data_db_name: geonode
+geonode_db_user: geonode
+geonode_db_password: geonode
+
+
+gunicorn_user: vagrant
+
+geoserver_webapp_dir: /var/lib/tomcat7/webapps/
+geoserver_build_url: http://build.geonode.org/geoserver/latest/geoserver.war
+
+supervisor_conf_file: /home/vagrant/geonode/supervisor_geonode.conf

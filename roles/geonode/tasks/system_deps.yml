@@ -1,0 +1,39 @@
+- name: install nginx
+  sudo: True
+  apt: name=nginx update_cache=yes cache_valid_time=36000
+
+- name: install depdendecies
+  sudo: True
+  apt: pkg={{ item }}
+  with_items:
+    - git
+    - build-essential 
+    - libxml2-dev 
+    - libxslt1-dev 
+    - libpq-dev 
+    - zlib1g-dev 
+    - python-dev 
+    - python-imaging 
+    - python-lxml 
+    - python-pyproj 
+    - python-shapely 
+    - python-nose 
+    - python-httplib2
+    - python-pip 
+    - python-software-properties 
+    - python-virtualenv
+    - postgresql
+    - postgresql-9.3-postgis-2.1
+    - gettext
+    - gdal-bin
+    - libgdal-dev
+    - tomcat7
+    - python-psycopg2
+
+- name: install python virtualenv
+  sudo: True
+  pip: name=virtualenv
+
+- name: install supervisor
+  sudo: True
+  pip: name=supervisor

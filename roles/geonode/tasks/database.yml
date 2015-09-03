@@ -1,0 +1,17 @@
+- name: create database user
+  postgresql_user: name={{ geonode_db_user }} password={{ geonode_db_password }}
+  sudo: True
+  sudo_user: postgres
+
+- name: create the postgres database
+  postgresql_db: name={{ geonode_db_name }} owner={{ geonode_db_user }}
+  sudo: True
+  sudo_user: postgres
+  notify:
+    - add postgis
+
+- name: copy the pg_hba.conf
+  copy: src=files/pg_hba.conf dest=/etc/postgresql/9.3/main/
+  sudo: True
+  notify:
+    - restart postgresql

@@ -1,0 +1,12 @@
+Deploy a GeoNode custom installation on Vagrant
+
+To use this script make sure to have a vagrant machine up and running using the Vagrantfile found in this folder.
+
+Rename the file ansible.cgf.sample to ansible.cfg and add the correct path to the vagrant ssh key.
+
+The run::
+
+  ansible-playbook main.yml
+
+
+Geonode will be deployed in productin and served at http://localhost:8000

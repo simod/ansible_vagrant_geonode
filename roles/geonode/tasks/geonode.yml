@@ -1,0 +1,81 @@
+#!/usr/bin/env ansible-playbook
+
+- name: get the geonode code
+  git: repo={{ geonode_repository }} dest={{ geonode_deploy_dir }} accept_hostkey=yes
+
+- name:  install GeoNode
+  pip: extra_args="-e" name=file://{{ geonode_deploy_dir }} virtualenv={{virtualenv_path}}
+
+- name: Copy Geonode local settings
+  template: src=templates/local_settings.j2 dest={{ geonode_deploy_dir }}/geonode/local_settings.py
+  notify: 
+    - restart supervisor
+
+- name: Setup GeoNode
+  django_manage: > 
+    command=syncdb 
+    virtualenv={{ virtualenv_path }} 
+    settings="geonode.settings" 
+    app_path={{ geonode_deploy_dir }}
+
+- name: Make sure the uploaded dir is there
+  sudo: True
+  file: >
+    path={{ geonode_media_folder }} 
+    state=directory owner={{ gunicorn_user }} 
+    group={{ gunicorn_user }} 
+    mode=0775
+
+- name: GeoNode collectstatic
+  sudo: True
+  django_manage: > 
+    command=collectstatic 
+    virtualenv={{ virtualenv_path }}  
+    settings="geonode.settings" 
+    app_path={{ geonode_deploy_dir }}
+
+- name: Set GeoNode superuser
+  django_manage: >
+    command=loaddata 
+    fixtures=sample_admin 
+    virtualenv={{ virtualenv_path }} 
+    settings="geonode.settings" 
+    app_path={{ geonode_deploy_dir }}
+
+- name: check if geoserver is already there
+  shell: "[ -f {{ geoserver_webapp_dir }}geoserver.war ] && echo 'true' || echo 'false'"
+  register: geoserver_exists
+
+- name: fetch geoserver
+  sudo: True
+  get_url: url={{ geoserver_build_url }} dest={{ geoserver_webapp_dir }}
+  when: geoserver_exists.stdout == "false"
+
+- name: set the supervisor config file
+  template: src=templates/supervisor.j2 dest={{ supervisor_conf_file }}
+  sudo: True
+  notify: 
+    - restart supervisor
+
+- name: check supervisord is up
+  shell: "ps -A | grep supervisord && echo 'true' || echo 'false'"
+  register: supervisord_up
+
+- name: start supervisord
+  command: supervisord -c {{ supervisor_conf_file }}
+  when: supervisord_up.stdout == "false"
+
+- name: copy nginx config file
+  sudo: True
+  copy: src=templates/nginx.conf.js dest=/etc/nginx/sites-available/default
+  notify:
+    - restart nginx
+
+- name: enable configuration
+  sudo: True
+  file: >
+    dest=/etc/nginx/sites-enabled/default
+    src=/etc/nginx/sites-available/default
+    state=link
+  notify:
+    - restart nginx

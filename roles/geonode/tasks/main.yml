@@ -1,0 +1,4 @@
+- include: system_deps.yml
+- include: venv_deps.yml
+- include: database.yml
+- include: geonode.yml
