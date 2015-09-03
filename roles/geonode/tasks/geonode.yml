@@ -67,7 +67,7 @@
 
 - name: copy nginx config file
   sudo: True
-  copy: src=templates/nginx.conf.js dest=/etc/nginx/sites-available/default
+  template: src=templates/nginx.conf.j2 dest=/etc/nginx/sites-available/default
   notify:
     - restart nginx
 

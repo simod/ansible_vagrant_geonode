@@ -10,3 +10,6 @@ The run::
 
 
 Geonode will be deployed in productin and served at http://localhost:8000
+Default login are:
+username: admin
+password: admin
